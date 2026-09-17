@@ -1,0 +1,20 @@
+# Render blueprint for TutorSetu (production)
+services:
+  - type: web
+    name: tutorsetu
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
+    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 3"
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tutorsetu-db
+          property: connectionString
+databases:
+  - name: tutorsetu-db
+    plan: free

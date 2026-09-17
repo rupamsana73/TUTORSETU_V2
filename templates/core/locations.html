@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <h1 class="fw-bold mb-4">Tutoring Locations</h1>
+    {% regroup locations by city as cities %}
+    {% for city in cities %}
+        <h2 class="h5 fw-bold">{{ city.grouper }}</h2>
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            {% for location in city.list %}
+                <a class="subject-chip text-decoration-none" href="{% url 'core:location_detail' slug=location.slug %}"><i class="bi bi-geo-alt"></i> {{ location.area }}</a>
+            {% endfor %}
+        </div>
+    {% empty %}
+        <div class="empty-state ts-card"><i class="bi bi-geo"></i><p class="mt-2">Locations will appear here soon.</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

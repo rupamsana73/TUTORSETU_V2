@@ -1,0 +1,24 @@
+{% extends "manage/base_manage.html" %}
+{% block title %}Enquiries | TutorSetu Admin{% endblock %}
+{% block manage_content %}
+<h1 class="h4 fw-bold mb-3">Enquiries</h1>
+<div class="ts-card p-3">
+    <div class="table-responsive">
+        <table class="table ts-table mb-0">
+            <thead><tr><th>#</th><th>From</th><th>To Tutor</th><th>Subject</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+                {% for e in enquiries %}
+                    <tr>
+                        <td>{{ e.pk }}</td>
+                        <td class="small">{{ e.sender.full_name }}</td>
+                        <td class="small">{{ e.tutor.user.full_name }}</td>
+                        <td class="small">{{ e.subject.name|default:"—" }}</td>
+                        <td><span class="badge bg-secondary-subtle text-secondary">{{ e.get_status_display }}</span></td>
+                        <td class="small">{{ e.created_at|date:"d M y" }}</td>
+                    </tr>
+                {% empty %}<tr><td colspan="6" class="text-center text-muted-ts py-4">No enquiries.</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

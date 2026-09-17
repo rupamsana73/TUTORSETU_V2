@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Respond to Request | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 640px;">
+    <div class="ts-card p-4">
+        <h1 class="h5 fw-bold mb-1">Respond to: {{ tutor_request.title }}</h1>
+        <p class="small text-muted-ts">{{ tutor_request.subject.name|default:"Any subject" }}{% if tutor_request.class_level %} · {{ tutor_request.class_level.name }}{% endif %}</p>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="alert alert-danger small">{{ form.non_field_errors }}</div>{% endif %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+            {% endfor %}
+            <button class="btn btn-ts-primary" type="submit">Send Response</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

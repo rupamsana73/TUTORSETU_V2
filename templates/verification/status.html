@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Verification | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 680px;">
+    <h1 class="h4 fw-bold mb-3">Verification Status</h1>
+    <div class="ts-card p-4 mb-3">
+        <p class="mb-1">Profile status:
+            <span class="badge bg-{% if tutor.verification_status == 'VERIFIED' %}success{% elif tutor.verification_status == 'PENDING' %}warning{% elif tutor.verification_status == 'REJECTED' %}danger{% else %}secondary{% endif %}-subtle text-{% if tutor.verification_status == 'VERIFIED' %}success{% elif tutor.verification_status == 'PENDING' %}warning{% elif tutor.verification_status == 'REJECTED' %}danger{% else %}secondary{% endif %}">{{ tutor.get_verification_status_display }}</span>
+        </p>
+        {% if tutor.badges.exists %}
+            <p class="mb-0">Badges: {% for badge in tutor.badges.all %}<span class="badge bg-success-subtle text-success">{{ badge.get_badge_display }}</span> {% endfor %}</p>
+        {% endif %}
+        {% if latest and latest.rejection_reason %}
+            <div class="alert alert-danger small mt-3 mb-0"><strong>Reviewer note:</strong> {{ latest.rejection_reason }}</div>
+        {% endif %}
+    </div>
+    {% if latest %}
+        <div class="ts-card p-4 mb-3">
+            <h2 class="h6 fw-bold">Latest submission ({{ latest.created_at|date:"d M Y" }})</h2>
+            <ul class="small mb-0">
+                {% for doc in documents %}<li>{{ doc.get_document_type_display }}</li>{% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    {% if tutor.verification_status != 'VERIFIED' %}
+        <a class="btn btn-ts-primary" href="{% url 'verification:submit' %}">{% if latest %}Resubmit Documents{% else %}Submit Documents{% endif %}</a>
+    {% endif %}
+</div>
+{% endblock %}

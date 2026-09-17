@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+    <h1 class="h4 fw-bold mb-3">Find Tutors</h1>
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <form method="get" class="ts-card p-3" id="filter-form">
+                <h2 class="h6 fw-bold mb-3"><i class="bi bi-funnel"></i> Filters</h2>
+                <div class="mb-2">
+                    <label class="form-label">Keyword</label>
+                    <input type="text" name="q" value="{{ form.q.value|default:'' }}" class="form-control form-control-sm" placeholder="Name or subject">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Subject</label>
+                    <select name="subject" class="form-select form-select-sm">
+                        <option value="">Any</option>
+                        {% for s in search_meta.subjects %}<option value="{{ s.id }}" {% if form.subject.value == s.id %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Class</label>
+                    <select name="class_level" class="form-select form-select-sm">
+                        <option value="">Any</option>
+                        {% for c in search_meta.classes %}<option value="{{ c.id }}" {% if form.class_level.value == c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Board</label>
+                    <select name="board" class="form-select form-select-sm">
+                        <option value="">Any</option>
+                        {% for b in search_meta.boards %}<option value="{{ b.id }}" {% if form.board.value == b.id %}selected{% endif %}>{{ b.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Location</label>
+                    <select name="location" class="form-select form-select-sm">
+                        <option value="">Any</option>
+                        {% for l in search_meta.locations %}<option value="{{ l.id }}" {% if form.location.value == l.id %}selected{% endif %}>{{ l.area }}, {{ l.city }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Teaching mode</label>
+                    <select name="mode" class="form-select form-select-sm">
+                        <option value="">Any</option>
+                        <option value="ONLINE" {% if form.mode.value == 'ONLINE' %}selected{% endif %}>Online</option>
+                        <option value="OFFLINE" {% if form.mode.value == 'OFFLINE' %}selected{% endif %}>Offline</option>
+                        <option value="BOTH" {% if form.mode.value == 'BOTH' %}selected{% endif %}>Both</option>
+                    </select>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <label class="form-label">Fee min</label>
+                        <input type="number" name="fee_min" value="{{ form.fee_min.value|default:'' }}" class="form-control form-control-sm" min="0">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Fee max</label>
+                        <input type="number" name="fee_max" value="{{ form.fee_max.value|default:'' }}" class="form-control form-control-sm" min="0">
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Min experience (yrs)</label>
+                    <input type="number" name="min_experience" value="{{ form.min_experience.value|default:'' }}" class="form-control form-control-sm" min="0">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Min rating</label>
+                    <select name="min_rating" class="form-select form-select-sm">
+                        <option value="">Any</option>
+                        <option value="4" {% if form.min_rating.value == 4 %}selected{% endif %}>4★ &amp; up</option>
+                        <option value="3" {% if form.min_rating.value == 3 %}selected{% endif %}>3★ &amp; up</option>
+                    </select>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="verified_only" id="verified_only" {% if form.verified_only.value %}checked{% endif %}>
+                    <label class="form-check-label small" for="verified_only">Verified tutors only</label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Sort by</label>
+                    <select name="sort" class="form-select form-select-sm">
+                        <option value="relevance">Relevance</option>
+                        <option value="rating" {% if form.sort.value == 'rating' %}selected{% endif %}>Rating</option>
+                        <option value="experience" {% if form.sort.value == 'experience' %}selected{% endif %}>Experience</option>
+                        <option value="fee_low" {% if form.sort.value == 'fee_low' %}selected{% endif %}>Fee: low to high</option>
+                        <option value="fee_high" {% if form.sort.value == 'fee_high' %}selected{% endif %}>Fee: high to low</option>
+                        <option value="newest" {% if form.sort.value == 'newest' %}selected{% endif %}>Newest</option>
+                    </select>
+                </div>
+                <button class="btn btn-ts-primary btn-sm w-100" type="submit">Apply Filters</button>
+                <a href="{% url 'tutors:list' %}" class="btn btn-link btn-sm w-100">Reset</a>
+            </form>
+        </div>
+        <div class="col-lg-9">
+            <div class="row g-3">
+                {% for tutor in tutors %}
+                    <div class="col-md-6">
+                        {% load core_tags %}{% with match=matches|get_item:tutor.pk %}{% include "partials/tutor_card.html" with tutor=tutor match=match %}{% endwith %}
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="empty-state ts-card">
+                            <i class="bi bi-search"></i>
+                            <p class="mt-2">No tutors match your filters yet. Try widening your search.</p>
+                            <a href="{% url 'marketplace:request_create' %}" class="btn btn-ts-outline btn-sm">Post a tutor request instead</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if tutors.paginator.num_pages > 1 %}
+                <nav class="mt-4" aria-label="Pagination">
+                    <ul class="pagination pagination-sm justify-content-center">
+                        {% if tutors.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ tutors.previous_page_number }}">Previous</a></li>
+                        {% endif %}
+                        <li class="page-item active"><span class="page-link">{{ tutors.number }} / {{ tutors.paginator.num_pages }}</span></li>
+                        {% if tutors.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ tutors.next_page_number }}">Next</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

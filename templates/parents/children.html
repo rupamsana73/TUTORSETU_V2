@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}My Children | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 820px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 fw-bold mb-0">My Children</h1>
+        <a class="btn btn-ts-primary btn-sm" href="{% url 'parents:child_create' %}"><i class="bi bi-plus"></i> Add Child</a>
+    </div>
+    <div class="row g-3">
+        {% for child in children %}
+            <div class="col-md-6">
+                <div class="ts-card p-3">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ child.name }}</strong>
+                        <div class="d-flex gap-1">
+                            <a class="btn btn-outline-secondary btn-sm" href="{% url 'parents:child_edit' child_id=child.pk %}"><i class="bi bi-pencil"></i></a>
+                            <form method="post" action="{% url 'parents:child_delete' child_id=child.pk %}">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-danger btn-sm" data-confirm="Remove {{ child.name }}?" type="submit"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="small text-muted-ts">{{ child.class_level.name|default:"Class not set" }}{% if child.board %} · {{ child.board.name }}{% endif %}{% if child.school %} · {{ child.school }}{% endif %}</div>
+                    <div class="mt-1">{% for s in child.subjects.all %}<span class="subject-chip">{{ s.name }}</span>{% endfor %}</div>
+                    {% if child.learning_requirements %}<p class="small text-muted-ts mt-2 mb-0">{{ child.learning_requirements|truncatechars:120 }}</p>{% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12"><div class="empty-state ts-card"><i class="bi bi-person-plus"></i><p class="mt-2 mb-0">Add your children to send enquiries and requests on their behalf.</p></div></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

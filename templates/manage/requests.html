@@ -1,0 +1,23 @@
+{% extends "manage/base_manage.html" %}
+{% block title %}Tutor Requests | TutorSetu Admin{% endblock %}
+{% block manage_content %}
+<h1 class="h4 fw-bold mb-3">Tutor Requests</h1>
+<div class="ts-card p-3">
+    <div class="table-responsive">
+        <table class="table ts-table mb-0">
+            <thead><tr><th>Title</th><th>Poster</th><th>Subject</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+                {% for r in requests %}
+                    <tr>
+                        <td class="small">{{ r.title|truncatechars:50 }}</td>
+                        <td class="small">{{ r.poster.full_name }}</td>
+                        <td class="small">{{ r.subject.name|default:"—" }}</td>
+                        <td><span class="badge bg-secondary-subtle text-secondary">{{ r.get_status_display }}</span></td>
+                        <td class="small">{{ r.created_at|date:"d M y" }}</td>
+                    </tr>
+                {% empty %}<tr><td colspan="5" class="text-center text-muted-ts py-4">No requests.</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

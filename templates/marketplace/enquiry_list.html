@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}My Enquiries | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h1 class="h4 fw-bold mb-3">My Enquiries</h1>
+    {% for enquiry in enquiries %}
+        <div class="ts-card p-3 mb-2">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                <div>
+                    <strong>{{ enquiry.tutor.user.full_name }}</strong>
+                    {% if enquiry.child %}<span class="text-muted-ts small">· for {{ enquiry.child.name }}</span>{% endif %}
+                    <div class="small text-muted-ts">
+                        {{ enquiry.subject.name|default:"General" }}{% if enquiry.class_level %} · {{ enquiry.class_level.name }}{% endif %}
+                        · {{ enquiry.get_teaching_mode_display }} · {{ enquiry.created_at|date:"d M Y" }}
+                    </div>
+                    <p class="small mb-1 mt-1">{{ enquiry.message|truncatechars:160 }}</p>
+                    {% if enquiry.tutor_response %}
+                        <p class="small mb-0 text-muted-ts"><strong>Tutor replied:</strong> {{ enquiry.tutor_response|truncatechars:160 }}</p>
+                    {% endif %}
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-{% if enquiry.status == 'ACCEPTED' %}success{% elif enquiry.status == 'PENDING' %}warning{% else %}secondary{% endif %}-subtle text-{% if enquiry.status == 'ACCEPTED' %}success{% elif enquiry.status == 'PENDING' %}warning{% else %}secondary{% endif %} mb-2">{{ enquiry.get_status_display }}</span>
+                    <div class="d-flex gap-1 justify-content-end">
+                        <a class="btn btn-ts-outline btn-sm" href="{% url 'tutors:detail' slug=enquiry.tutor.slug %}">View Tutor</a>
+                        {% if enquiry.can_withdraw %}
+                            <form method="post" action="{% url 'marketplace:withdraw_enquiry' enquiry_id=enquiry.pk %}">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-danger btn-sm" data-confirm="Withdraw this enquiry?" type="submit">Withdraw</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="empty-state ts-card"><i class="bi bi-inbox"></i><p class="mt-2 mb-0">No enquiries yet. <a href="{% url 'tutors:list' %}">Find a tutor</a> and send your first enquiry.</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

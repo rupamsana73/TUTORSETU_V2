@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="ts-hero">
+    <div class="container text-center" style="max-width: 820px;">
+        <h1 class="display-6 fw-bold">Teach. Earn. Inspire.</h1>
+        <p class="lead text-muted-ts">Join TutorSetu's community of verified tutors across Howrah and Kolkata.</p>
+        <a href="{% url 'accounts:register_role' role='tutor' %}" class="btn btn-ts-primary btn-lg">Create Your Tutor Profile</a>
+    </div>
+</section>
+<div class="container py-5" style="max-width: 880px;">
+    <div class="row g-3">
+        <div class="col-md-4"><div class="ts-card p-4 h-100"><div class="feature-icon mb-2"><i class="bi bi-card-checklist"></i></div><h2 class="h6 fw-bold">1. Build your profile</h2><p class="small text-muted-ts mb-0">Add education, subjects, fees, locations and availability in a guided multi-step flow.</p></div></div>
+        <div class="col-md-4"><div class="ts-card p-4 h-100"><div class="feature-icon mb-2"><i class="bi bi-patch-check"></i></div><h2 class="h6 fw-bold">2. Get verified</h2><p class="small text-muted-ts mb-0">Submit your documents privately. Verified tutors stand out in search results.</p></div></div>
+        <div class="col-md-4"><div class="ts-card p-4 h-100"><div class="feature-icon mb-2"><i class="bi bi-chat-heart"></i></div><h2 class="h6 fw-bold">3. Receive enquiries</h2><p class="small text-muted-ts mb-0">Respond to students and manage everything from your tutor dashboard.</p></div></div>
+    </div>
+</div>
+{% endblock %}

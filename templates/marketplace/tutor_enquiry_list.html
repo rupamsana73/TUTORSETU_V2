@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Enquiries | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h1 class="h4 fw-bold mb-3">Enquiries Received</h1>
+    {% for enquiry in enquiries %}
+        <div class="ts-card p-3 mb-2">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <strong>{{ enquiry.sender.full_name }}</strong>
+                    {% if enquiry.child %}<span class="text-muted-ts small">· for {{ enquiry.child.name }}</span>{% endif %}
+                    <span class="badge bg-{% if enquiry.status == 'ACCEPTED' %}success{% elif enquiry.status == 'PENDING' %}warning{% else %}secondary{% endif %}-subtle text-{% if enquiry.status == 'ACCEPTED' %}success{% elif enquiry.status == 'PENDING' %}warning{% else %}secondary{% endif %}">{{ enquiry.get_status_display }}</span>
+                    <div class="small text-muted-ts">
+                        {{ enquiry.subject.name|default:"General" }}{% if enquiry.class_level %} · {{ enquiry.class_level.name }}{% endif %}
+                        · {{ enquiry.get_teaching_mode_display }}{% if enquiry.budget %} · Budget ₹{{ enquiry.budget }}{% endif %}{% if enquiry.preferred_days %} · {{ enquiry.preferred_days }}{% endif %}
+                    </div>
+                    <p class="small mt-1 mb-0">{{ enquiry.message }}</p>
+                </div>
+                {% if enquiry.status == 'PENDING' or enquiry.status == 'CONTACTED' %}
+                    <form method="post" action="{% url 'marketplace:respond_enquiry' enquiry_id=enquiry.pk %}" class="d-flex flex-column gap-1" style="min-width: 220px;">
+                        {% csrf_token %}
+                        <textarea name="response" class="form-control form-control-sm" rows="2" placeholder="Write a short reply (optional)"></textarea>
+                        <div class="d-flex gap-1">
+                            <button name="action" value="accept" class="btn btn-success btn-sm flex-fill" type="submit">Accept</button>
+                            <button name="action" value="contact" class="btn btn-outline-secondary btn-sm flex-fill" type="submit">Contacted</button>
+                            <button name="action" value="reject" class="btn btn-outline-danger btn-sm flex-fill" data-confirm="Reject this enquiry?" type="submit">Reject</button>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="empty-state ts-card"><i class="bi bi-inbox"></i><p class="mt-2 mb-0">No enquiries yet. Keep your profile complete and live.</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load core_tags humanize %}
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'tutors:list' %}">Find Tutors</a></li><li class="breadcrumb-item active">{{ tutor.user.full_name }}</li></ol></nav>
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="ts-card p-4 text-center mb-3">
+                {% if tutor.user.profile_image %}
+                    <img src="{{ tutor.user.profile_image.url }}" alt="{{ tutor.user.full_name }}" class="rounded-4 mb-3" style="width:130px;height:130px;object-fit:cover;">
+                {% else %}
+                    <span class="tutor-avatar-fallback mb-3" style="width:130px;height:130px;font-size:3rem;">{{ tutor.user.full_name|slice:":1"|upper }}</span>
+                {% endif %}
+                {% if tutor.is_verified %}<div class="verified-badge mb-1"><i class="bi bi-patch-check-fill"></i> Verified Tutor</div>{% endif %}
+                {% for badge in tutor.badges.all %}<span class="badge bg-success-subtle text-success me-1">{{ badge.get_badge_display }}</span>{% endfor %}
+                <h1 class="h5 fw-bold mt-1 mb-1">{{ tutor.user.full_name }}</h1>
+                {% if tutor.tagline %}<p class="small text-muted-ts mb-2">{{ tutor.tagline }}</p>{% endif %}
+                {% if tutor.reviews_count %}
+                    <div class="mb-2"><span class="rating-stars">{{ tutor.average_rating|star_icons }}</span> <strong>{{ tutor.average_rating|floatformat:1 }}</strong> <span class="text-muted-ts small">({{ tutor.reviews_count }} review{{ tutor.reviews_count|pluralize }})</span></div>
+                {% else %}
+                    <div class="small text-muted-ts mb-2">New on TutorSetu</div>
+                {% endif %}
+                <div class="small text-muted-ts">
+                    <div><i class="bi bi-briefcase"></i> {{ tutor.experience_years }} year{{ tutor.experience_years|pluralize }} experience</div>
+                    <div><i class="bi bi-geo-alt"></i> {{ tutor.display_location }}</div>
+                    <div><i class="bi bi-laptop"></i> {{ tutor.get_teaching_mode_display }}</div>
+                    {% if tutor.language_list %}<div><i class="bi bi-translate"></i> {{ tutor.language_list|join:", " }}</div>{% endif %}
+                </div>
+                <hr>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="fee-chip fs-6">{{ tutor.fee_display }}</span>
+                    {% if tutor.fee_negotiable %}<span class="small text-muted-ts">Negotiable</span>{% endif %}
+                </div>
+                <div class="d-grid gap-2">
+                    {% if user.is_authenticated %}
+                        {% if user.is_student or user.is_parent %}
+                            <a href="{% url 'marketplace:send_enquiry' tutor_slug=tutor.slug %}" class="btn btn-ts-primary">Send Enquiry</a>
+                            <form method="post" action="{% url 'marketplace:request_demo' tutor_slug=tutor.slug %}">
+                                {% csrf_token %}
+                                <button class="btn btn-ts-accent w-100" type="submit">Request Demo</button>
+                            </form>
+                            <form method="post" action="{% url 'marketplace:toggle_save' tutor_id=tutor.pk %}">
+                                {% csrf_token %}
+                                <button class="btn btn-ts-outline w-100" type="submit">
+                                    <i class="bi bi-bookmark-heart{% if not is_saved %}-fill{% endif %}"></i>
+                                    {% if is_saved %}Saved — tap to remove{% else %}Save Tutor{% endif %}
+                                </button>
+                            </form>
+                        {% elif user == tutor.user %}
+                            <a href="{% url 'tutors:profile_edit' %}" class="btn btn-ts-primary">Edit My Profile</a>
+                        {% endif %}
+                        <a class="btn btn-outline-secondary btn-sm" href="#" onclick="navigator.clipboard&&navigator.clipboard.writeText(window.location.href);this.innerText='Link copied!';return false;"><i class="bi bi-share"></i> Share</a>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-ts-primary">Log in to contact</a>
+                    {% endif %}
+                </div>
+                <div class="mt-3">
+                    <a href="{% url 'reports:report' target_type='tutor' object_id=tutor.pk %}" class="small text-muted-ts"><i class="bi bi-flag"></i> Report this profile</a>
+                </div>
+                <p class="small text-muted-ts mt-3 mb-0"><i class="bi bi-shield-lock"></i> Contact details stay private — chat inside TutorSetu.</p>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            {% if tutor.about %}
+                <div class="ts-card p-4 mb-3"><h2 class="h6 fw-bold">About</h2><p class="mb-0">{{ tutor.about|linebreaksbr }}</p></div>
+            {% endif %}
+            {% if tutor.highest_qualification or tutor.degree or tutor.institution %}
+                <div class="ts-card p-4 mb-3">
+                    <h2 class="h6 fw-bold">Education &amp; Qualifications</h2>
+                    <ul class="small mb-0">
+                        {% if tutor.highest_qualification %}<li><strong>Qualification:</strong> {{ tutor.highest_qualification }}</li>{% endif %}
+                        {% if tutor.degree %}<li><strong>Degree:</strong> {{ tutor.degree }}</li>{% endif %}
+                        {% if tutor.institution %}<li><strong>Institution:</strong> {{ tutor.institution }}{% if tutor.university %}, {{ tutor.university }}{% endif %}</li>{% endif %}
+                        {% if tutor.passing_year %}<li><strong>Passed:</strong> {{ tutor.passing_year }}</li>{% endif %}
+                    </ul>
+                </div>
+            {% endif %}
+            <div class="ts-card p-4 mb-3">
+                <h2 class="h6 fw-bold">Teaching</h2>
+                <div class="row small">
+                    <div class="col-md-4 mb-2"><strong>Subjects</strong><br>{% for s in tutor.subjects.all %}<span class="subject-chip">{{ s.name }}</span>{% empty %}<span class="text-muted-ts">—</span>{% endfor %}</div>
+                    <div class="col-md-4 mb-2"><strong>Classes</strong><br>{% for c in tutor.classes.all %}<span class="subject-chip">{{ c.name }}</span>{% empty %}<span class="text-muted-ts">—</span>{% endfor %}</div>
+                    <div class="col-md-4 mb-2"><strong>Boards</strong><br>{% for b in tutor.boards.all %}<span class="subject-chip">{{ b.name }}</span>{% empty %}<span class="text-muted-ts">—</span>{% endfor %}</div>
+                </div>
+            </div>
+            {% if tutor.teaching_methodology %}
+                <div class="ts-card p-4 mb-3"><h2 class="h6 fw-bold">Teaching Methodology</h2><p class="mb-0 small">{{ tutor.teaching_methodology|linebreaksbr }}</p></div>
+            {% endif %}
+            <div class="row g-3 mb-3">
+                {% if tutor.teaching_areas.exists %}
+                    <div class="col-md-6">
+                        <div class="ts-card p-4 h-100">
+                            <h2 class="h6 fw-bold">Areas Covered</h2>
+                            {% for area in tutor.teaching_areas.all %}<span class="subject-chip">{{ area.location.area }}</span>{% endfor %}
+                            <div class="small text-muted-ts mt-2">Within ~{{ tutor.teaching_radius_km }} km</div>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="col-md-{% if tutor.teaching_areas.exists %}6{% else %}12{% endif %}">
+                    <div class="ts-card p-4 h-100">
+                        <h2 class="h6 fw-bold">Weekly Availability</h2>
+                        {% regroup tutor.availability.all by weekday as days %}
+                        <ul class="small mb-0 list-unstyled">
+                            {% for day in days %}
+                                <li><strong>{{ weekday_labels|get_item:day.grouper }}:</strong>
+                                    {% for slot in day.list %}{{ slot.start_time|time:"g:i A" }}–{{ slot.end_time|time:"g:i A" }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                </li>
+                            {% empty %}<li class="text-muted-ts">Availability not set yet.</li>{% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% if tutor.achievements or tutor.certifications %}
+                <div class="ts-card p-4 mb-3">
+                    <h2 class="h6 fw-bold">Achievements &amp; Certifications</h2>
+                    {% if tutor.achievements %}<p class="small mb-1">{{ tutor.achievements|linebreaksbr }}</p>{% endif %}
+                    {% if tutor.certifications %}<p class="small mb-0 text-muted-ts">{{ tutor.certifications|linebreaksbr }}</p>{% endif %}
+                </div>
+            {% endif %}
+            <div class="ts-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h6 fw-bold mb-0">Reviews</h2>
+                    {% if user.is_authenticated and user.pk != tutor.user_id %}
+                        <a class="btn btn-ts-outline btn-sm" href="{% url 'reviews:create' tutor_slug=tutor.slug %}">Write a Review</a>
+                    {% endif %}
+                </div>
+                {% for review in reviews %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <strong class="small">{{ review.reviewer.full_name }}</strong>
+                            <span class="rating-stars small">{{ review.rating|star_icons }}</span>
+                        </div>
+                        <div class="fw-bold small">{{ review.title }}</div>
+                        <p class="small text-muted-ts mb-1">{{ review.text }}</p>
+                        <form method="post" action="{% url 'reviews:report' review_id=review.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="reason" value="Reported from tutor profile page.">
+                            <button class="btn btn-link btn-sm p-0 text-muted-ts" style="font-size:.75rem;" type="submit">Report review</button>
+                        </form>
+                    </div>
+                {% empty %}
+                    <p class="small text-muted-ts mb-0">No reviews yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "manage/base_manage.html" %}
+{% load core_tags %}
+{% block title %}Content | TutorSetu Admin{% endblock %}
+{% block manage_content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 fw-bold mb-0 text-capitalize">{{ kind }}</h1>
+    <a class="btn btn-ts-primary btn-sm" href="{% url 'manage:content_new' kind=kind %}"><i class="bi bi-plus"></i> Add</a>
+</div>
+<div class="ts-card p-3">
+    <div class="table-responsive">
+        <table class="table ts-table mb-0">
+            <thead><tr>{% for f in fields %}<th class="text-capitalize">{{ f|cut:"_" }}</th>{% endfor %}<th></th></tr></thead>
+            <tbody>
+                {% for item in items_page %}
+                    <tr>
+                        {% for f in fields %}
+                            <td class="small">{{ item|attribute:f }}</td>
+                        {% endfor %}
+                        <td><a class="btn btn-outline-secondary btn-sm" href="{% url 'manage:content_edit' kind=kind object_id=item.pk %}">Edit</a></td>
+                    </tr>
+                {% empty %}<tr><td colspan="8" class="text-center text-muted-ts py-4">Nothing here yet.</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

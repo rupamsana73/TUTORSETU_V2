@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load core_tags %}
+{% block title %}Availability | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 760px;">
+    <h1 class="h4 fw-bold mb-1">Weekly Availability</h1>
+    <p class="text-muted-ts small">Add the days and times you can teach. Multiple slots per day are allowed.</p>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="ts-card p-4">
+                <h2 class="h6 fw-bold">Add a slot</h2>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}<div class="alert alert-danger small">{{ form.non_field_errors }}</div>{% endif %}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        </div>
+                    {% endfor %}
+                    <button class="btn btn-ts-primary" type="submit">Add Slot</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="ts-card p-4">
+                <h2 class="h6 fw-bold">Your slots</h2>
+                {% regroup slots by weekday as days %}
+                {% for day in days %}
+                    <div class="mb-2">
+                        <strong class="small">{{ weekday_labels|get_item:day.grouper }}</strong>
+                        <ul class="list-unstyled small mb-0">
+                            {% for slot in day.list %}
+                                <li class="d-flex justify-content-between align-items-center border-bottom py-1">
+                                    <span>{{ slot.start_time|time:"g:i A" }} – {{ slot.end_time|time:"g:i A" }}</span>
+                                    <form method="post" action="{% url 'tutors:delete_slot' slot_id=slot.pk %}">
+                                        {% csrf_token %}
+                                        <button class="btn btn-link btn-sm text-danger p-0" data-confirm="Delete this slot?" type="submit"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% empty %}
+                    <div class="empty-state py-4"><i class="bi bi-calendar-x"></i><p class="small mt-2 mb-0">No availability set yet.</p></div>
+                {% endfor %}
+            </div>
+            <a class="btn btn-ts-outline btn-sm mt-3" href="{% url 'tutors:dashboard' %}">← Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Saved Tutors | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h1 class="h4 fw-bold mb-3">Saved Tutors</h1>
+    <div class="row g-3">
+        {% for saved in saved %}
+            <div class="col-md-6 col-lg-4">{% include "partials/tutor_card.html" with tutor=saved.tutor %}</div>
+        {% empty %}
+            <div class="col-12"><div class="empty-state ts-card"><i class="bi bi-bookmark-heart"></i><p class="mt-2 mb-0">No saved tutors. Tap the bookmark icon on any tutor profile.</p></div></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

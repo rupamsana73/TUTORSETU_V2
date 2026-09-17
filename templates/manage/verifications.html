@@ -1,0 +1,28 @@
+{% extends "manage/base_manage.html" %}
+{% block title %}Tutor Verification | TutorSetu Admin{% endblock %}
+{% block manage_content %}
+<h1 class="h4 fw-bold mb-3">Tutor Verification Queue</h1>
+<div class="btn-group btn-group-sm mb-3">
+    {% for value, label in statuses %}
+        <a class="btn btn-{% if status == value %}primary{% else %}outline-secondary{% endif %}" href="?status={{ value }}">{{ label }}</a>
+    {% endfor %}
+</div>
+<div class="ts-card p-3">
+    <div class="table-responsive">
+        <table class="table ts-table mb-0">
+            <thead><tr><th>Tutor</th><th>Documents</th><th>Submitted</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+                {% for v in verifications %}
+                    <tr>
+                        <td>{{ v.tutor.user.full_name }}</td>
+                        <td class="small">{{ v.documents.count }} file{{ v.documents.count|pluralize }}</td>
+                        <td class="small">{{ v.created_at|date:"d M Y" }}</td>
+                        <td><span class="badge bg-secondary-subtle text-secondary">{{ v.get_status_display }}</span></td>
+                        <td><a class="btn btn-ts-outline btn-sm" href="{% url 'manage:verification_detail' verification_id=v.pk %}">Review</a></td>
+                    </tr>
+                {% empty %}<tr><td colspan="5" class="text-center text-muted-ts py-4">No submissions here.</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

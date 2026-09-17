@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Account Settings | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 640px;">
+    <h1 class="h4 fw-bold mb-4">Account Settings</h1>
+    <div class="ts-card p-4 mb-3">
+        <h2 class="h6 fw-bold">Profile</h2>
+        <p class="small text-muted-ts mb-1"><strong>Name:</strong> {{ user.full_name }}</p>
+        <p class="small text-muted-ts mb-1"><strong>Email:</strong> {{ user.email }}
+            {% if user.email_verified %}<span class="badge bg-success-subtle text-success">Verified</span>
+            {% else %}<span class="badge bg-warning-subtle text-warning">Unverified</span>
+                <form method="post" action="{% url 'accounts:resend_verification' %}" class="d-inline">{% csrf_token %}<button class="btn btn-link btn-sm p-0 ms-1">Resend verification email</button></form>
+            {% endif %}
+        </p>
+        <p class="small text-muted-ts mb-0"><strong>Role:</strong> {{ user.get_role_display }}</p>
+    </div>
+    <div class="ts-card p-4 mb-3">
+        <h2 class="h6 fw-bold">Security</h2>
+        <a class="btn btn-ts-outline btn-sm" href="{% url 'accounts:change_password' %}">Change Password</a>
+    </div>
+    <div class="ts-card p-4 border-danger">
+        <h2 class="h6 fw-bold text-danger">Danger Zone</h2>
+        <p class="small text-muted-ts">Deactivate your account. You can contact support to reactivate it.</p>
+        <form method="post" action="{% url 'accounts:deactivate' %}">
+            {% csrf_token %}
+            <div class="input-group" style="max-width: 320px;">
+                <input type="password" name="password" class="form-control form-control-sm" placeholder="Confirm with password" required>
+                <button class="btn btn-outline-danger btn-sm" data-confirm="Deactivate your account?" type="submit">Deactivate</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

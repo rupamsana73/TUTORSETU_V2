@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'core:subjects' %}">Subjects</a></li><li class="breadcrumb-item active">{{ subject.name }}</li></ol></nav>
+    <h1 class="fw-bold">{{ subject.name }} Tutors</h1>
+    <p class="text-muted-ts">Verified {{ subject.name }} tutors across Kolkata &amp; Howrah.</p>
+    <div class="row g-3 mt-2">
+        {% for tutor in tutors %}
+            <div class="col-md-6 col-lg-4">{% include "partials/tutor_card.html" with tutor=tutor %}</div>
+        {% empty %}
+            <div class="col-12"><div class="empty-state ts-card"><i class="bi bi-search"></i><p class="mt-2 mb-0">No {{ subject.name }} tutors published yet. <a href="{% url 'tutors:list' %}">Browse all tutors</a>.</p></div></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

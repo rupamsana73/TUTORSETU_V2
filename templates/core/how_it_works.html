@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5" style="max-width: 880px;">
+    <h1 class="fw-bold text-center mb-4">How TutorSetu Works</h1>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="ts-card p-4 h-100">
+                <h2 class="h5 fw-bold"><i class="bi bi-mortarboard"></i> For Students &amp; Parents</h2>
+                <ol class="text-muted-ts">
+                    <li>Create a free account.</li>
+                    <li>Search tutors by subject, class, board, location and budget.</li>
+                    <li>Compare profiles, ratings and fees. Save tutors you like.</li>
+                    <li>Send an enquiry or request a demo class.</li>
+                    <li>Message securely and start learning. Leave a review afterwards.</li>
+                </ol>
+                <a href="{% url 'accounts:register' %}" class="btn btn-ts-primary btn-sm">Get Started</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="ts-card p-4 h-100">
+                <h2 class="h5 fw-bold"><i class="bi bi-person-workspace"></i> For Tutors</h2>
+                <ol class="text-muted-ts">
+                    <li>Register and complete your multi-step professional profile.</li>
+                    <li>Upload documents to earn verified badges.</li>
+                    <li>Receive enquiries and respond to tutor requests.</li>
+                    <li>Message students/parents and grow your reputation.</li>
+                </ol>
+                <a href="{% url 'accounts:register_role' role='tutor' %}" class="btn btn-ts-outline btn-sm">Become a Tutor</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

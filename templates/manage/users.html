@@ -1,0 +1,40 @@
+{% extends "manage/base_manage.html" %}
+{% block title %}Users | TutorSetu Admin{% endblock %}
+{% block manage_content %}
+<h1 class="h4 fw-bold mb-3">Users{% if role %} — {{ role }}s{% endif %}</h1>
+<form method="get" class="d-flex gap-2 mb-3" style="max-width: 520px;">
+    <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Search name or email">
+    <select name="status" class="form-select form-select-sm" style="max-width: 150px;">
+        <option value="">Any status</option>
+        {% for value, label in statuses %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-ts-primary btn-sm" type="submit">Filter</button>
+</form>
+<div class="ts-card p-3">
+    <div class="table-responsive">
+        <table class="table ts-table align-middle mb-0">
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Verified</th><th>Joined</th><th></th></tr></thead>
+            <tbody>
+                {% for u in users_page %}
+                    <tr>
+                        <td><a href="{% url 'manage:user_detail' user_id=u.pk %}">{{ u.full_name }}</a></td>
+                        <td class="small">{{ u.email }}</td>
+                        <td><span class="badge bg-secondary-subtle text-secondary">{{ u.role }}</span></td>
+                        <td><span class="badge bg-{% if u.status == 'ACTIVE' %}success{% elif u.status == 'INACTIVE' %}secondary{% else %}danger{% endif %}-subtle text-{% if u.status == 'ACTIVE' %}success{% elif u.status == 'INACTIVE' %}secondary{% else %}danger{% endif %}">{{ u.get_status_display }}</span></td>
+                        <td>{% if u.email_verified %}<i class="bi bi-check-circle-fill text-success"></i>{% else %}—{% endif %}</td>
+                        <td class="small">{{ u.date_joined|date:"d M y" }}</td>
+                        <td><a class="btn btn-outline-secondary btn-sm" href="{% url 'manage:user_detail' user_id=u.pk %}">Manage</a></td>
+                    </tr>
+                {% empty %}<tr><td colspan="7" class="text-center text-muted-ts py-4">No users found.</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% if users_page.paginator.num_pages > 1 %}
+    <nav class="mt-3"><ul class="pagination pagination-sm justify-content-center">
+        {% if users_page.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ users_page.previous_page_number }}&q={{ q }}&status={{ status }}">Previous</a></li>{% endif %}
+        <li class="page-item active"><span class="page-link">{{ users_page.number }}/{{ users_page.paginator.num_pages }}</span></li>
+        {% if users_page.has_next %}<li class="page-item"><a class="page-link" href="?page={{ users_page.next_page_number }}&q={{ q }}&status={{ status }}">Next</a></li>{% endif %}
+    </ul></nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Messages | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 760px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 fw-bold mb-0">Messages</h1>
+        <form method="get" class="d-flex gap-1">
+            <input type="text" name="q" value="{{ search }}" class="form-control form-control-sm" placeholder="Search conversations">
+            <button class="btn btn-ts-outline btn-sm" type="submit"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+    {% for item in items %}
+        <a href="{% url 'messaging:conversation' conversation_id=item.conversation.pk %}" class="text-decoration-none text-reset">
+            <div class="ts-card ts-card-hover p-3 mb-2 d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>
+                        {% for other in item.others %}{{ other.full_name }}{% if not forloop.last %}, {% endif %}{% empty %}{{ item.conversation.subject|default:"Conversation" }}{% endfor %}
+                    </strong>
+                    {% if item.last_message %}
+                        <div class="small text-muted-ts text-truncate" style="max-width: 420px;">{{ item.last_message.body|truncatechars:60 }}</div>
+                    {% else %}
+                        <div class="small text-muted-ts">No messages yet</div>
+                    {% endif %}
+                </div>
+                <div class="text-end">
+                    {% if item.unread %}<span class="badge rounded-pill bg-primary">{{ item.unread }}</span>{% endif %}
+                    <div class="small text-muted-ts">{% if item.last_message %}{{ item.last_message.created_at|date:"d M" }}{% endif %}</div>
+                </div>
+            </div>
+        </a>
+    {% empty %}
+        <div class="empty-state ts-card"><i class="bi bi-chat-dots"></i><p class="mt-2 mb-0">No conversations yet. Accept an enquiry or respond to a request to start chatting.</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

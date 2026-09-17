@@ -1,0 +1,60 @@
+{% load humanize %}
+{# Expected context: tutor (TutorProfile), optional match (MatchResult) #}
+<div class="ts-card ts-card-hover tutor-card p-3 h-100 d-flex flex-column">
+    <div class="d-flex gap-3 mb-2">
+        {% if tutor.user.profile_image %}
+            <img class="tutor-photo" src="{{ tutor.user.profile_image.url }}" alt="{{ tutor.user.full_name }}" loading="lazy">
+        {% else %}
+            <span class="tutor-avatar-fallback" aria-hidden="true">{{ tutor.user.full_name|slice:":1"|upper }}</span>
+        {% endif %}
+        <div class="flex-grow-1 min-width-0">
+            {% if tutor.is_verified %}
+                <span class="verified-badge"><i class="bi bi-patch-check-fill"></i> Verified Tutor</span>
+            {% endif %}
+            <h3 class="h6 fw-bold mb-1 text-truncate">{{ tutor.user.full_name }}</h3>
+            <div class="small text-muted-ts text-truncate">
+                {% for subject in tutor.subjects.all|slice:":3" %}{{ subject.name }}{% if not forloop.last %}, {% endif %}{% empty %}Tutor{% endfor %}
+            </div>
+            <div class="small">
+                {% if tutor.reviews_count %}
+                    <span class="rating-stars">★</span> {{ tutor.average_rating|floatformat:1 }}
+                    <span class="text-muted-ts">({{ tutor.reviews_count }} review{{ tutor.reviews_count|pluralize }})</span>
+                {% else %}
+                    <span class="text-muted-ts">New on TutorSetu</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="small text-muted-ts mb-2">
+        <i class="bi bi-briefcase"></i> {{ tutor.experience_years }} yr{{ tutor.experience_years|pluralize }} exp
+        &nbsp;·&nbsp; <i class="bi bi-geo-alt"></i> {{ tutor.display_location|truncatechars:28 }}
+        &nbsp;·&nbsp; <i class="bi bi-laptop"></i> {{ tutor.get_teaching_mode_display }}
+    </div>
+    {% if match %}
+        <div class="mb-2">
+            <span class="match-pill"><i class="bi bi-stars"></i> Highly suitable for your requirements</span>
+            {% if match.reasons %}
+                <ul class="small text-muted-ts mt-1 mb-0 ps-3">
+                    {% for reason in match.reasons|slice:":3" %}<li>{{ reason }}</li>{% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    {% endif %}
+    <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top">
+        <span class="fee-chip">{{ tutor.fee_display }}</span>
+        <div class="d-flex gap-1">
+            <a href="{% url 'tutors:detail' slug=tutor.slug %}" class="btn btn-ts-primary btn-sm">View Profile</a>
+            {% if user.is_authenticated %}
+                {% if user.is_student or user.is_parent %}
+                    <a href="{% url 'marketplace:send_enquiry' tutor_slug=tutor.slug %}" class="btn btn-ts-outline btn-sm">Enquire</a>
+                    <form method="post" action="{% url 'marketplace:toggle_save' tutor_id=tutor.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-secondary btn-sm" title="Save tutor" aria-label="Save tutor"><i class="bi bi-bookmark-heart"></i></button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-ts-outline btn-sm">Enquire</a>
+            {% endif %}
+        </div>
+    </div>
+</div>

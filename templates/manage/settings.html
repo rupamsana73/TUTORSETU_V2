@@ -1,0 +1,20 @@
+{% extends "manage/base_manage.html" %}
+{% block title %}Settings | TutorSetu Admin{% endblock %}
+{% block manage_content %}
+<h1 class="h4 fw-bold mb-3">Platform Settings</h1>
+<div class="ts-card p-4" style="max-width: 640px;">
+    <form method="post">
+        {% csrf_token %}
+        {% for s in settings_list %}
+            <div class="mb-3">
+                <label class="form-label">{{ s.key }}</label>
+                {% if s.description %}<div class="form-text small mb-1">{{ s.description }}</div>{% endif %}
+                <input type="text" name="setting__{{ s.key }}" value="{{ s.value }}" class="form-control">
+            </div>
+        {% empty %}
+            <p class="small text-muted-ts">No settings configured yet. Add them via Django admin (Platform Settings).</p>
+        {% endfor %}
+        {% if settings_list %}<button class="btn btn-ts-primary" type="submit">Save Settings</button>{% endif %}
+    </form>
+</div>
+{% endblock %}

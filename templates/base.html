@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ meta_title|default:"TutorSetu — Find the Right Tutor. Learn the Right Way." }}{% endblock %}</title>
+    <meta name="description" content="{{ meta_description|default:'Discover trusted local and online tutors across Kolkata and Howrah.' }}">
+    {% block canonical %}<link rel="canonical" href="{{ request.build_absolute_uri }}">{% endblock %}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ SITE_NAME }}">
+    <meta property="og:title" content="{{ meta_title|default:'TutorSetu' }}">
+    <meta property="og:description" content="{{ meta_description|default:'Find the Right Tutor. Learn the Right Way.' }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <a class="visually-hidden-focusable btn btn-primary position-absolute" href="#main-content">Skip to content</a>
+
+    <!-- Desktop + mobile top navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm ts-navbar">
+        <div class="container">
+            <a class="navbar-brand ts-brand" href="{% url 'core:home' %}">
+                <span class="ts-brand-mark">सेतु</span> TutorSetu
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'core:home' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'tutors:list' %}">Find Tutors</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'core:subjects' %}">Subjects</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'core:become_a_tutor' %}">Become a Tutor</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'core:how_it_works' %}">How It Works</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'core:about' %}">About</a></li>
+                </ul>
+                <ul class="navbar-nav align-items-lg-center">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url user.dashboard_url_name %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="{% url 'notifications:list' %}">
+                                <i class="bi bi-bell"></i>
+                                {% if unread_notifications %}
+                                    <span class="badge rounded-pill bg-danger ts-badge">{{ unread_notifications }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'messaging:list' %}"><i class="bi bi-chat-dots"></i> Messages</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i> {{ user.full_name|truncatewords:1 }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url user.dashboard_url_name %}">My Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:settings' %}">Account Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="{% url 'accounts:logout' %}">
+                                        {% csrf_token %}
+                                        <button class="dropdown-item text-danger" type="submit"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login' %}">Login</a></li>
+                        <li class="nav-item ms-lg-2"><a class="btn btn-ts-primary btn-sm px-3" href="{% url 'accounts:register' %}">Sign Up</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash messages as toasts -->
+    {% if messages %}
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+            {% for message in messages %}
+                <div class="toast align-items-center border-0 show mb-2 ts-toast ts-toast-{{ message.tags|default:'info' }}" role="alert" aria-live="polite">
+                    <div class="d-flex">
+                        <div class="toast-body">{{ message }}</div>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main id="main-content" class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="ts-footer mt-5 pt-5 pb-4">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <h5 class="ts-brand text-white"><span class="ts-brand-mark">सेतु</span> TutorSetu</h5>
+                    <p class="small opacity-75">Find the Right Tutor. Learn the Right Way.<br>
+                    Connecting students, parents and trusted tutors across Kolkata, Howrah and West Bengal.</p>
+                </div>
+                <div class="col-md-2 col-6">
+                    <h6 class="text-white-50 text-uppercase small">Explore</h6>
+                    <ul class="list-unstyled small">
+                        <li><a href="{% url 'tutors:list' %}">Find Tutors</a></li>
+                        <li><a href="{% url 'core:subjects' %}">Subjects</a></li>
+                        <li><a href="{% url 'core:locations' %}">Locations</a></li>
+                        <li><a href="{% url 'marketplace:request_browse' %}">Tutor Requests</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 col-6">
+                    <h6 class="text-white-50 text-uppercase small">Company</h6>
+                    <ul class="list-unstyled small">
+                        <li><a href="{% url 'core:about' %}">About</a></li>
+                        <li><a href="{% url 'core:how_it_works' %}">How It Works</a></li>
+                        <li><a href="{% url 'core:become_a_tutor' %}">Become a Tutor</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-white-50 text-uppercase small">Trust &amp; Safety</h6>
+                    <p class="small opacity-75 mb-0">Tutor identities and qualifications are reviewed by our team. Never share payment details before verifying a tutor.</p>
+                </div>
+            </div>
+            <hr class="border-secondary opacity-25">
+            <div class="d-flex justify-content-between small opacity-75">
+                <span>&copy; {{ CURRENT_YEAR }} TutorSetu. All rights reserved.</span>
+                <span>Made in Kolkata, India</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile bottom navigation (authenticated) -->
+    {% if user.is_authenticated %}
+        <nav class="ts-bottom-nav d-lg-none">
+            {% if user.is_tutor %}
+                <a href="{% url 'tutors:dashboard' %}"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+                <a href="{% url 'marketplace:tutor_requests' %}"><i class="bi bi-megaphone"></i><span>Requests</span></a>
+                <a href="{% url 'tutors:students' %}"><i class="bi bi-people"></i><span>Students</span></a>
+                <a href="{% url 'messaging:list' %}"><i class="bi bi-chat-dots"></i><span>Messages</span></a>
+                <a href="{% url 'accounts:settings' %}"><i class="bi bi-person"></i><span>Profile</span></a>
+            {% elif user.is_platform_admin %}
+                <a href="{% url 'manage:dashboard' %}"><i class="bi bi-speedometer2"></i><span>Admin</span></a>
+                <a href="{% url 'manage:users' %}"><i class="bi bi-people"></i><span>Users</span></a>
+                <a href="{% url 'manage:verifications' %}"><i class="bi bi-patch-check"></i><span>Verify</span></a>
+                <a href="{% url 'messaging:list' %}"><i class="bi bi-chat-dots"></i><span>Messages</span></a>
+                <a href="{% url 'accounts:settings' %}"><i class="bi bi-person"></i><span>Profile</span></a>
+            {% else %}
+                <a href="{% url user.dashboard_url_name %}"><i class="bi bi-house"></i><span>Home</span></a>
+                <a href="{% url 'tutors:list' %}"><i class="bi bi-search"></i><span>Explore</span></a>
+                <a href="{% if user.is_parent %}{% url 'parents:saved' %}{% else %}{% url 'students:saved' %}{% endif %}"><i class="bi bi-bookmark-heart"></i><span>Saved</span></a>
+                <a href="{% url 'messaging:list' %}"><i class="bi bi-chat-dots"></i><span>Messages</span></a>
+                <a href="{% url 'accounts:settings' %}"><i class="bi bi-person"></i><span>Profile</span></a>
+            {% endif %}
+        </nav>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

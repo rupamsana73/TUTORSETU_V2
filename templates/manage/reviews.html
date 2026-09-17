@@ -1,0 +1,35 @@
+{% extends "manage/base_manage.html" %}
+{% block title %}Reviews | TutorSetu Admin{% endblock %}
+{% block manage_content %}
+<h1 class="h4 fw-bold mb-3">Reviews Moderation</h1>
+<div class="btn-group btn-group-sm mb-3">
+    <a class="btn btn-outline-secondary" href="?">All</a>
+    {% for value, label in statuses %}<a class="btn btn-outline-secondary" href="?status={{ value }}">{{ label }}</a>{% endfor %}
+</div>
+<div class="ts-card p-3">
+    <div class="table-responsive">
+        <table class="table ts-table mb-0">
+            <thead><tr><th>Tutor</th><th>Reviewer</th><th>Rating</th><th>Review</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for r in reviews %}
+                    <tr>
+                        <td class="small">{{ r.tutor.user.full_name }}</td>
+                        <td class="small">{{ r.reviewer.full_name }}</td>
+                        <td>{{ r.rating }}★</td>
+                        <td class="small"><strong>{{ r.title|truncatechars:30 }}</strong><br>{{ r.text|truncatechars:60 }}</td>
+                        <td><span class="badge bg-secondary-subtle text-secondary">{{ r.get_status_display }}</span></td>
+                        <td>
+                            <form method="post" action="{% url 'manage:review_moderate' review_id=r.pk %}" class="d-flex gap-1">
+                                {% csrf_token %}
+                                {% if r.status != 'PUBLISHED' %}<button name="action" value="publish" class="btn btn-success btn-sm" type="submit">Publish</button>{% endif %}
+                                {% if r.status == 'PUBLISHED' %}<button name="action" value="hide" class="btn btn-warning btn-sm" type="submit">Hide</button>{% endif %}
+                                <button name="action" value="remove" class="btn btn-danger btn-sm" data-confirm="Remove this review?" type="submit">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}<tr><td colspan="6" class="text-center text-muted-ts py-4">No reviews.</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

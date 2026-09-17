@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ tutor_request.title }} | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 840px;">
+    <div class="ts-card p-4 mb-3">
+        <div class="d-flex justify-content-between align-items-start">
+            <h1 class="h5 fw-bold">{{ tutor_request.title }}</h1>
+            <span class="badge bg-secondary-subtle text-secondary">{{ tutor_request.get_status_display }}</span>
+        </div>
+        <div class="small text-muted-ts mb-2">
+            Posted by {{ tutor_request.poster.full_name }} · {{ tutor_request.created_at|date:"d M Y" }}
+        </div>
+        <p>{{ tutor_request.description|linebreaksbr }}</p>
+        <div class="small">
+            {% if tutor_request.subject %}<span class="subject-chip">{{ tutor_request.subject.name }}</span>{% endif %}
+            {% if tutor_request.class_level %}<span class="subject-chip">{{ tutor_request.class_level.name }}</span>{% endif %}
+            {% if tutor_request.board %}<span class="subject-chip">{{ tutor_request.board.name }}</span>{% endif %}
+            {% if tutor_request.location %}<span class="subject-chip"><i class="bi bi-geo-alt"></i> {{ tutor_request.location.area }}, {{ tutor_request.location.city }}</span>{% endif %}
+            <span class="subject-chip">{{ tutor_request.get_mode_display }}</span>
+            {% if tutor_request.budget %}<span class="fee-chip">Budget ₹{{ tutor_request.budget }}</span>{% endif %}
+        </div>
+        {% if tutor_request.preferred_schedule %}<p class="small text-muted-ts mt-2 mb-0"><strong>Schedule:</strong> {{ tutor_request.preferred_schedule }}</p>{% endif %}
+        {% if tutor_is_open %}
+        {% endif %}
+    </div>
+
+    {% if user.is_authenticated and user.is_tutor and tutor_request.status == 'OPEN' %}
+        {% if my_application %}
+            <div class="alert alert-info small">You have already responded to this request (status: {{ my_application.get_status_display }}).</div>
+        {% else %}
+            <a class="btn btn-ts-primary" href="{% url 'marketplace:apply' request_id=tutor_request.pk %}">Respond to this Request</a>
+        {% endif %}
+    {% endif %}
+
+    {% if applications is not None %}
+        <div class="ts-card p-4 mt-3">
+            <h2 class="h6 fw-bold">Responses ({{ applications|length }})</h2>
+            {% for application in applications %}
+                <div class="border-bottom py-3">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div>
+                            <a class="fw-bold text-decoration-none" href="{% url 'tutors:detail' slug=application.tutor.slug %}">{{ application.tutor.user.full_name }}</a>
+                            {% if application.tutor.is_verified %}<span class="verified-badge small"><i class="bi bi-patch-check-fill"></i></span>{% endif %}
+                            <p class="small text-muted-ts mb-1">{{ application.message }}</p>
+                            {% if application.proposed_fee %}<span class="fee-chip">₹{{ application.proposed_fee }}/hr</span>{% endif %}
+                        </div>
+                        <div class="d-flex flex-column align-items-end gap-1">
+                            <span class="badge bg-secondary-subtle text-secondary">{{ application.get_status_display }}</span>
+                            {% if application.status == 'PENDING' %}
+                                <form method="post" action="{% url 'marketplace:respond_application' application_id=application.pk %}" class="d-flex gap-1">
+                                    {% csrf_token %}
+                                    <button name="action" value="ACCEPTED" class="btn btn-success btn-sm" type="submit">Accept</button>
+                                    <button name="action" value="SHORTLISTED" class="btn btn-outline-secondary btn-sm" type="submit">Shortlist</button>
+                                    <button name="action" value="REJECTED" class="btn btn-outline-danger btn-sm" type="submit">Reject</button>
+                                </form>
+                            {% endif %}
+                            <form method="post" action="{% url 'messaging:start' user_id=application.tutor.user_id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-link btn-sm p-0" type="submit"><i class="bi bi-chat-dots"></i> Message</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="small text-muted-ts mb-0">No responses yet.</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

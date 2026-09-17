@@ -1,0 +1,79 @@
+{% extends "manage/base_manage.html" %}
+{% block title %}Admin Dashboard | TutorSetu{% endblock %}
+{% block manage_content %}
+<h1 class="h4 fw-bold mb-4">Dashboard</h1>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3"><div class="ts-card stat-card p-3"><div class="stat-value">{{ stats.total_users }}</div><div class="stat-label">Total Users</div></div></div>
+    <div class="col-6 col-xl-3"><div class="ts-card stat-card p-3"><div class="stat-value">{{ stats.tutors }}</div><div class="stat-label">Tutors</div></div></div>
+    <div class="col-6 col-xl-3"><div class="ts-card stat-card p-3" style="border-left-color: var(--ts-success);"><div class="stat-value">{{ stats.verified_tutors }}</div><div class="stat-label">Verified Tutors</div></div></div>
+    <div class="col-6 col-xl-3"><div class="ts-card stat-card p-3" style="border-left-color: var(--ts-accent);"><div class="stat-value">{{ stats.pending_verification }}</div><div class="stat-label">Pending Verification</div></div></div>
+    <div class="col-6 col-xl-3"><div class="ts-card stat-card p-3"><div class="stat-value">{{ stats.students }} / {{ stats.parents }}</div><div class="stat-label">Students / Parents</div></div></div>
+    <div class="col-6 col-xl-3"><div class="ts-card stat-card p-3"><div class="stat-value">{{ stats.active_enquiries }}</div><div class="stat-label">Active Enquiries</div></div></div>
+    <div class="col-6 col-xl-3"><div class="ts-card stat-card p-3"><div class="stat-value">{{ stats.tutor_requests }}</div><div class="stat-label">Tutor Requests</div></div></div>
+    <div class="col-6 col-xl-3"><div class="ts-card stat-card p-3" style="border-left-color: var(--ts-danger);"><div class="stat-value">{{ stats.open_reports }}</div><div class="stat-label">Open Reports</div></div></div>
+</div>
+<div class="row g-3 mb-4">
+    <div class="col-lg-7">
+        <div class="ts-card p-3">
+            <h2 class="h6 fw-bold">User Growth (14 days)</h2>
+            <canvas id="users-chart" height="120"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="ts-card p-3">
+            <h2 class="h6 fw-bold">Enquiries (14 days)</h2>
+            <canvas id="enquiries-chart" height="120"></canvas>
+        </div>
+    </div>
+</div>
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="ts-card p-3">
+            <h2 class="h6 fw-bold">Latest Users</h2>
+            <div class="table-responsive">
+                <table class="table ts-table mb-0">
+                    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
+                    <tbody>
+                        {% for u in recent_users %}
+                            <tr><td><a href="{% url 'manage:user_detail' user_id=u.pk %}">{{ u.full_name }}</a></td><td class="small">{{ u.email }}</td><td><span class="badge bg-secondary-subtle text-secondary">{{ u.role }}</span></td><td class="small">{{ u.date_joined|date:"d M" }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="ts-card p-3">
+            <h2 class="h6 fw-bold">Verification Queue</h2>
+            {% for v in pending_verifications %}
+                <div class="d-flex justify-content-between border-bottom py-2 small">
+                    <span>{{ v.tutor.user.full_name }}</span>
+                    <a class="btn btn-ts-outline btn-sm" href="{% url 'manage:verification_detail' verification_id=v.pk %}">Review</a>
+                </div>
+            {% empty %}<p class="small text-muted-ts mb-0">Queue is empty. 🎉</p>{% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    var labels = {{ chart_labels|safe }};
+    var users = {{ chart_users|safe }};
+    var enquiries = {{ chart_enquiries|safe }};
+    if (window.Chart) {
+        new Chart(document.getElementById("users-chart"), {
+            type: "line",
+            data: { labels: labels, datasets: [{ label: "New users", data: users, borderColor: "#4f46e5", backgroundColor: "rgba(79,70,229,.12)", fill: true, tension: .35 }] },
+            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+        });
+        new Chart(document.getElementById("enquiries-chart"), {
+            type: "bar",
+            data: { labels: labels, datasets: [{ label: "Enquiries", data: enquiries, backgroundColor: "#f59e0b" }] },
+            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+        });
+    }
+})();
+</script>
+{% endblock %}

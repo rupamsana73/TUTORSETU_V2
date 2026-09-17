@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Sign Up | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 880px;">
+    <h1 class="h3 fw-bold text-center mb-1">Join TutorSetu</h1>
+    <p class="text-center text-muted-ts mb-4">Choose how you want to use the platform.</p>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="ts-card ts-card-hover p-4 h-100 text-center">
+                <div class="feature-icon mx-auto mb-2"><i class="bi bi-mortarboard"></i></div>
+                <h2 class="h6 fw-bold">I'm a Student</h2>
+                <p class="small text-muted-ts">Find tutors for school, college or competitive exams.</p>
+                <a class="btn btn-ts-primary btn-sm" href="{% url 'accounts:register_role' role='student' %}">Sign up as Student</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="ts-card ts-card-hover p-4 h-100 text-center">
+                <div class="feature-icon mx-auto mb-2"><i class="bi bi-people"></i></div>
+                <h2 class="h6 fw-bold">I'm a Parent</h2>
+                <p class="small text-muted-ts">Find trusted tutors for your children and manage their learning.</p>
+                <a class="btn btn-ts-primary btn-sm" href="{% url 'accounts:register_role' role='parent' %}">Sign up as Parent</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="ts-card ts-card-hover p-4 h-100 text-center">
+                <div class="feature-icon mx-auto mb-2"><i class="bi bi-person-workspace"></i></div>
+                <h2 class="h6 fw-bold">I'm a Tutor</h2>
+                <p class="small text-muted-ts">Create a professional profile and connect with students.</p>
+                <a class="btn btn-ts-accent btn-sm" href="{% url 'accounts:register_role' role='tutor' %}">Sign up as Tutor</a>
+            </div>
+        </div>
+    </div>
+    <p class="text-center small text-muted-ts mt-4">Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
+</div>
+{% endblock %}

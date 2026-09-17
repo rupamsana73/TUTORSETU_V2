@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Tutor Onboarding — {{ title }} | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 720px;">
+    <nav aria-label="Onboarding progress" class="mb-4">
+        <ol class="list-unstyled d-flex justify-content-between small">
+            {% for num, data in steps.items %}
+                <li class="text-center flex-fill {% if num == step %}fw-bold text-primary{% elif num < step %}text-success{% else %}text-muted-ts{% endif %}">
+                    <div class="mx-auto mb-1 d-flex align-items-center justify-content-center rounded-circle"
+                         style="width:34px;height:34px;background:{% if num < step %}#10b981{% elif num == step %}var(--ts-primary){% else %}#e2e8f0{% endif %};color:#fff;">
+                        {% if num < step %}<i class="bi bi-check"></i>{% else %}{{ num }}{% endif %}
+                    </div>
+                    <span class="d-none d-md-inline">{{ data.0 }}</span>
+                </li>
+            {% endfor %}
+        </ol>
+    </nav>
+    <div class="ts-card p-4">
+        <h1 class="h5 fw-bold mb-3">Step {{ step }}: {{ title }}</h1>
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="alert alert-danger small">{{ form.non_field_errors }}</div>{% endif %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label">{{ field.label }}{% if field.field.required %}<span class="text-danger">*</span>{% endif %}</label>
+                    {% if field.field.widget.input_type == 'checkbox' %}
+                        <div class="row row-cols-2 row-cols-md-3 g-1">{{ field }}</div>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                    {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    {% if field.help_text %}<div class="form-text small">{{ field.help_text }}</div>{% endif %}
+                </div>
+            {% endfor %}
+            <div class="d-flex justify-content-between">
+                {% if step > 1 %}<a class="btn btn-outline-secondary" href="{% url 'tutors:onboarding' step=step|add:'-1' %}">Back</a>{% else %}<span></span>{% endif %}
+                <button class="btn btn-ts-primary" type="submit">{% if step < 5 %}Save &amp; Continue{% else %}Save &amp; Finish{% endif %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+# Secrets / env
+.env
+secrets
+credentials
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# Django
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+logs/
+*.log
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+# Private uploaded verification documents
+private_media/

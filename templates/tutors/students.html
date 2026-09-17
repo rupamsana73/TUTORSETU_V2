@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}My Students | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h1 class="h4 fw-bold mb-3">My Students</h1>
+    <p class="text-muted-ts small">Students and parents connected to you through accepted enquiries.</p>
+    <div class="row g-3">
+        {% for enquiry in enquiries %}
+            <div class="col-md-6">
+                <div class="ts-card p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ enquiry.sender.full_name }}</strong>
+                        {% if enquiry.child %}<span class="text-muted-ts small">· for {{ enquiry.child.name }}</span>{% endif %}
+                        <div class="small text-muted-ts">{{ enquiry.subject.name|default:"General" }}{% if enquiry.class_level %} · {{ enquiry.class_level.name }}{% endif %}</div>
+                    </div>
+                    <form method="post" action="{% url 'messaging:start' user_id=enquiry.sender_id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-ts-outline btn-sm" type="submit"><i class="bi bi-chat-dots"></i> Message</button>
+                    </form>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12"><div class="empty-state ts-card"><i class="bi bi-people"></i><p class="mt-2 mb-0">No connected students yet.</p></div></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

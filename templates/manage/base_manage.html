@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <aside class="col-lg-2 col-md-3 d-none d-md-block manage-sidebar p-0 pt-3">
+            <div class="nav-section">Main</div>
+            <a href="{% url 'manage:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <div class="nav-section">Users</div>
+            <a href="{% url 'manage:users_by_role' role='STUDENT' %}">Students</a>
+            <a href="{% url 'manage:users_by_role' role='PARENT' %}">Parents</a>
+            <a href="{% url 'manage:users_by_role' role='TUTOR' %}">Tutors</a>
+            <a href="{% url 'manage:users' %}">All Users</a>
+            <div class="nav-section">Verification</div>
+            <a href="{% url 'manage:verifications' %}"><i class="bi bi-patch-check"></i> Tutor Verification</a>
+            <div class="nav-section">Marketplace</div>
+            <a href="{% url 'manage:enquiries' %}">Enquiries</a>
+            <a href="{% url 'manage:requests' %}">Tutor Requests</a>
+            <a href="{% url 'manage:applications' %}">Applications</a>
+            <div class="nav-section">Content</div>
+            <a href="{% url 'manage:content_list' kind='subjects' %}">Subjects</a>
+            <a href="{% url 'manage:content_list' kind='classes' %}">Classes</a>
+            <a href="{% url 'manage:content_list' kind='boards' %}">Boards</a>
+            <a href="{% url 'manage:content_list' kind='locations' %}">Locations</a>
+            <div class="nav-section">Trust &amp; Safety</div>
+            <a href="{% url 'manage:reviews' %}">Reviews</a>
+            <a href="{% url 'manage:reports' %}">Reports</a>
+            <div class="nav-section">System</div>
+            <a href="{% url 'manage:notifications' %}">Notifications</a>
+            <a href="{% url 'manage:audit_logs' %}">Audit Logs</a>
+            <a href="{% url 'manage:settings' %}">Settings</a>
+            <div class="nav-section">Django</div>
+            <a href="/admin/" class="small">Django Admin ↗</a>
+        </aside>
+        <main class="col-lg-10 col-md-9 py-4 px-md-4">
+            {% block manage_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}

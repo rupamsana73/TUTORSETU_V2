@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Conversation | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 760px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h5 fw-bold mb-0">
+            {% for other in others %}{{ other.full_name }}{% if not forloop.last %}, {% endif %}{% empty %}{{ conversation.subject|default:"Conversation" }}{% endfor %}
+        </h1>
+        <a class="btn btn-link btn-sm" href="{% url 'messaging:list' %}">← All messages</a>
+    </div>
+    <div class="ts-card p-3 mb-3" style="max-height: 60vh; overflow-y: auto;" id="chat-box">
+        {% for message in messages_list %}
+            <div class="d-flex mb-2 {% if message.sender_id == user.pk %}justify-content-end{% endif %}">
+                <div class="p-2 px-3 rounded-4" style="max-width: 75%; background: {% if message.sender_id == user.pk %}var(--ts-primary){% else %}#f1f5f9{% endif %}; color: {% if message.sender_id == user.pk %}#fff{% else %}inherit{% endif %};">
+                    <div class="small">{{ message.body|linebreaksbr }}</div>
+                    <div class="text-end" style="font-size: .68rem; opacity: .7;">{{ message.created_at|date:"d M, g:i A" }}</div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="empty-state py-4"><i class="bi bi-chat-square-text"></i><p class="small mt-2 mb-0">Say hello to start the conversation.</p></div>
+        {% endfor %}
+    </div>
+    <form method="post" action="{% url 'messaging:send' conversation_id=conversation.pk %}" class="d-flex gap-2">
+        {% csrf_token %}
+        <input type="text" name="body" class="form-control" placeholder="Type a message…" maxlength="4000" required autocomplete="off" autofocus>
+        <button class="btn btn-ts-primary" type="submit"><i class="bi bi-send"></i></button>
+    </form>
+</div>
+{% block extra_js %}
+<script>
+    var box = document.getElementById("chat-box");
+    if (box) { box.scrollTop = box.scrollHeight; }
+</script>
+{% endblock %}
+{% endblock %}

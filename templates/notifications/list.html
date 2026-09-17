@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Notifications | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 720px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 fw-bold mb-0">Notifications</h1>
+        <form method="post" action="{% url 'notifications:mark_all_read' %}">
+            {% csrf_token %}
+            <button class="btn btn-ts-outline btn-sm" type="submit">Mark all read</button>
+        </form>
+    </div>
+    {% for notification in notifications %}
+        <a href="{% url 'notifications:open' notification_id=notification.pk %}" class="text-decoration-none text-reset">
+            <div class="ts-card p-3 mb-2 {% if not notification.is_read %}border-primary{% endif %}">
+                <div class="d-flex justify-content-between">
+                    <strong class="small">{% if not notification.is_read %}<span class="badge bg-primary me-1">New</span>{% endif %}{{ notification.title }}</strong>
+                    <span class="small text-muted-ts">{{ notification.created_at|date:"d M" }}</span>
+                </div>
+                {% if notification.body %}<p class="small text-muted-ts mb-0 mt-1">{{ notification.body|truncatechars:140 }}</p>{% endif %}
+            </div>
+        </a>
+    {% empty %}
+        <div class="empty-state ts-card"><i class="bi bi-bell"></i><p class="mt-2 mb-0">You're all caught up!</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

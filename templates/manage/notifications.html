@@ -1,0 +1,35 @@
+{% extends "manage/base_manage.html" %}
+{% block title %}Notifications | TutorSetu Admin{% endblock %}
+{% block manage_content %}
+<h1 class="h4 fw-bold mb-3">Send Notification</h1>
+<div class="ts-card p-4 mb-4" style="max-width: 640px;">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Audience</label>
+            <select name="role" class="form-select">
+                <option value="">All users</option>
+                {% for value, label in roles %}<option value="{{ value }}">{{ label }}s</option>{% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" name="title" class="form-control" maxlength="200" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Message</label>
+            <textarea name="body" class="form-control" rows="3"></textarea>
+        </div>
+        <button class="btn btn-ts-primary" data-confirm="Send to this audience?" type="submit">Send</button>
+    </form>
+</div>
+<h2 class="h6 fw-bold">Recent Notifications</h2>
+<div class="ts-card p-3">
+    {% for n in recent %}
+        <div class="d-flex justify-content-between border-bottom py-2 small">
+            <span><strong>{{ n.title|truncatechars:50 }}</strong> → {{ n.recipient.email }}</span>
+            <span class="text-muted-ts">{{ n.created_at|date:"d M H:i" }}</span>
+        </div>
+    {% empty %}<p class="small text-muted-ts mb-0">No notifications yet.</p>{% endfor %}
+</div>
+{% endblock %}

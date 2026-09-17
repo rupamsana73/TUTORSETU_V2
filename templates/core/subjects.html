@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <h1 class="fw-bold mb-4">Subjects</h1>
+    {% for category in categories %}
+        <div class="mb-4" id="{{ category.slug }}">
+            <h2 class="h5 fw-bold">{{ category.name }}</h2>
+            <div class="d-flex flex-wrap gap-2">
+                {% for subject in category.subjects.all %}
+                    {% if subject.is_active %}
+                        <a class="subject-chip text-decoration-none" href="{% url 'core:subject_detail' slug=subject.slug %}">{{ subject.name }}</a>
+                    {% endif %}
+                {% empty %}<span class="text-muted-ts small">No subjects yet.</span>{% endfor %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="empty-state ts-card"><i class="bi bi-journal"></i><p class="mt-2">Subjects will appear here soon.</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

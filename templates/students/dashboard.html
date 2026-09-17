@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h1 class="h4 fw-bold mb-1">Welcome back, {{ user.full_name|truncatewords:1 }} 👋</h1>
+    <p class="text-muted-ts small mb-4">Here's what's happening with your learning journey.</p>
+
+    {% if not user.email_verified %}
+        <div class="alert alert-warning small d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-envelope-exclamation"></i> Verify your email to secure your account.</span>
+            <form method="post" action="{% url 'accounts:resend_verification' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-dark" type="submit">Resend link</button></form>
+        </div>
+    {% endif %}
+
+    <div class="row g-2 mb-4">
+        <div class="col-6 col-md-3"><a class="quick-action" href="{% url 'tutors:list' %}"><i class="bi bi-search"></i>Find Tutor</a></div>
+        <div class="col-6 col-md-3"><a class="quick-action" href="{% url 'marketplace:request_create' %}"><i class="bi bi-megaphone"></i>Request Tutor</a></div>
+        <div class="col-6 col-md-3"><a class="quick-action" href="{% url 'students:saved' %}"><i class="bi bi-bookmark-heart"></i>Saved Tutors</a></div>
+        <div class="col-6 col-md-3"><a class="quick-action" href="{% url 'messaging:list' %}"><i class="bi bi-chat-dots"></i>Messages</a></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <h2 class="h6 fw-bold">Recommended for you</h2>
+            <div class="row g-3 mb-4">
+                {% for match in recommended %}
+                    <div class="col-md-6">{% include "partials/tutor_card.html" with tutor=match.tutor match=match %}</div>
+                {% empty %}
+                    <div class="col-12"><div class="empty-state ts-card py-4"><i class="bi bi-stars"></i><p class="small mt-2 mb-0">Recommendations will appear here once tutors join.</p></div></div>
+                {% endfor %}
+            </div>
+            <h2 class="h6 fw-bold">Active Enquiries</h2>
+            <div class="ts-card p-3 mb-4">
+                {% for enquiry in active_enquiries %}
+                    <div class="d-flex justify-content-between border-bottom py-2">
+                        <span class="small"><strong>{{ enquiry.tutor.user.full_name }}</strong> · {{ enquiry.subject.name|default:"General" }}</span>
+                        <span class="badge bg-secondary-subtle text-secondary">{{ enquiry.get_status_display }}</span>
+                    </div>
+                {% empty %}
+                    <div class="empty-state py-3"><i class="bi bi-inbox"></i><p class="small mt-2 mb-0">No active enquiries. <a href="{% url 'tutors:list' %}">Find a tutor</a> to get started.</p></div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <h2 class="h6 fw-bold">Saved Tutors</h2>
+            <div class="ts-card p-3 mb-4">
+                {% for saved in saved_tutors %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                        <span class="small"><strong>{{ saved.tutor.user.full_name }}</strong></span>
+                        <a class="btn btn-ts-outline btn-sm" href="{% url 'tutors:detail' slug=saved.tutor.slug %}">View</a>
+                    </div>
+                {% empty %}<p class="small text-muted-ts mb-0 py-2">You haven't saved any tutors yet.</p>{% endfor %}
+            </div>
+            <h2 class="h6 fw-bold">My Tutor Requests</h2>
+            <div class="ts-card p-3">
+                {% for req in requests %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                        <span class="small">{{ req.title|truncatechars:40 }}</span>
+                        <a class="btn btn-link btn-sm" href="{% url 'marketplace:request_detail' request_id=req.pk %}">Open</a>
+                    </div>
+                {% empty %}<p class="small text-muted-ts mb-0 py-2">No tutor requests. <a href="{% url 'marketplace:request_create' %}">Post one</a> and let tutors come to you.</p>{% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

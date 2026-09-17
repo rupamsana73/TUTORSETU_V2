@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}My Tutor Requests | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 fw-bold mb-0">My Tutor Requests</h1>
+        <a class="btn btn-ts-primary btn-sm" href="{% if user.is_parent %}{% url 'marketplace:parent_request_create' %}{% else %}{% url 'marketplace:request_create' %}{% endif %}">New Request</a>
+    </div>
+    {% for req in requests %}
+        <div class="ts-card p-3 mb-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <a class="fw-bold text-decoration-none" href="{% url 'marketplace:request_detail' request_id=req.pk %}">{{ req.title }}</a>
+                <div class="small text-muted-ts">{{ req.subject.name|default:"Any subject" }} · {{ req.get_status_display }} · {{ req.created_at|date:"d M Y" }}</div>
+            </div>
+            {% if req.status == 'OPEN' or req.status == 'RESPONDED' %}
+                <form method="post" action="{% url 'marketplace:request_close' request_id=req.pk %}">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-danger btn-sm" data-confirm="Cancel this request?" type="submit">Cancel</button>
+                </form>
+            {% endif %}
+        </div>
+    {% empty %}
+        <div class="empty-state ts-card"><i class="bi bi-megaphone"></i><p class="mt-2 mb-0">You haven't posted any tutor requests yet.</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

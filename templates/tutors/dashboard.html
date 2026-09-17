@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Tutor Dashboard | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <h1 class="h4 fw-bold mb-1">Welcome back, {{ user.full_name|truncatewords:1 }} 👋</h1>
+            <p class="text-muted-ts small mb-0">
+                Status:
+                {% if tutor.is_verified %}<span class="verified-badge"><i class="bi bi-patch-check-fill"></i> Verified</span>
+                {% else %}<span class="badge bg-warning-subtle text-warning">{{ tutor.get_verification_status_display }}</span>{% endif %}
+                · Profile {% if tutor.is_published %}<span class="text-success fw-semibold">Live</span>{% else %}<span class="text-danger fw-semibold">Hidden</span>{% endif %}
+            </p>
+        </div>
+        <form method="post" action="{% url 'tutors:toggle_publish' %}">
+            {% csrf_token %}
+            <button class="btn btn-sm {% if tutor.is_published %}btn-outline-danger{% else %}btn-ts-primary{% endif %}" type="submit">
+                {% if tutor.is_published %}Unpublish Profile{% else %}Publish Profile{% endif %}
+            </button>
+        </form>
+    </div>
+
+    {% if not user.email_verified %}
+        <div class="alert alert-warning small d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-envelope-exclamation"></i> Please verify your email address.</span>
+            <form method="post" action="{% url 'accounts:resend_verification' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-dark" type="submit">Resend link</button></form>
+        </div>
+    {% endif %}
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><div class="ts-card stat-card p-3"><div class="stat-value">{{ pending_enquiries }}</div><div class="stat-label">Pending enquiries</div></div></div>
+        <div class="col-6 col-md-3"><div class="ts-card stat-card p-3"><div class="stat-value">{{ tutor.enquiries.count }}</div><div class="stat-label">Total enquiries</div></div></div>
+        <div class="col-6 col-md-3"><div class="ts-card stat-card p-3"><div class="stat-value">{{ applications|length }}</div><div class="stat-label">Recent applications</div></div></div>
+        <div class="col-6 col-md-3"><div class="ts-card stat-card p-3"><div class="stat-value">{{ tutor.profile_views }}</div><div class="stat-label">Profile views</div></div></div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><a class="quick-action" href="{% url 'tutors:onboarding' step=1 %}"><i class="bi bi-person-badge"></i>Edit Profile</a></div>
+        <div class="col-6 col-md-3"><a class="quick-action" href="{% url 'tutors:availability' %}"><i class="bi bi-calendar-week"></i>Availability</a></div>
+        <div class="col-6 col-md-3"><a class="quick-action" href="{% url 'verification:status' %}"><i class="bi bi-patch-check"></i>Verification</a></div>
+        <div class="col-6 col-md-3"><a class="quick-action" href="{% url 'marketplace:tutor_requests' %}"><i class="bi bi-megaphone"></i>Browse Requests</a></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="ts-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h6 fw-bold mb-0">Recent Enquiries</h2>
+                    <a href="{% url 'marketplace:tutor_enquiries' %}" class="btn btn-link btn-sm">View all</a>
+                </div>
+                {% for enquiry in enquiries %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                        <div>
+                            <strong class="small">{{ enquiry.sender.full_name }}</strong>
+                            <span class="text-muted-ts small">· {{ enquiry.subject.name|default:"General" }}</span>
+                            <div class="small text-muted-ts text-truncate" style="max-width: 320px;">{{ enquiry.message|truncatechars:70 }}</div>
+                        </div>
+                        <span class="badge bg-{% if enquiry.status == 'PENDING' %}warning{% elif enquiry.status == 'ACCEPTED' %}success{% else %}secondary{% endif %}-subtle text-{% if enquiry.status == 'PENDING' %}warning{% elif enquiry.status == 'ACCEPTED' %}success{% else %}secondary{% endif %}">{{ enquiry.get_status_display }}</span>
+                    </div>
+                {% empty %}
+                    <div class="empty-state py-4"><i class="bi bi-inbox"></i><p class="small mt-2 mb-0">No enquiries yet. Publish your profile to get discovered.</p></div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="ts-card p-4 mb-3">
+                <h2 class="h6 fw-bold">Profile Completeness</h2>
+                <div class="progress" role="progressbar" aria-valuenow="{{ completion }}" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
+                    <div class="progress-bar" style="width: {{ completion }}%; background: var(--ts-primary);"></div>
+                </div>
+                <p class="small text-muted-ts mt-2 mb-0">{{ completion }}% complete. {% if completion < 60 %}Reach 60% to publish.{% else %}Great work!{% endif %}</p>
+            </div>
+            <div class="ts-card p-4">
+                <h2 class="h6 fw-bold">Rating</h2>
+                {% if tutor.reviews_count %}
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="display-6 fw-bold">{{ tutor.average_rating|floatformat:1 }}</span>
+                        <div class="small text-muted-ts">out of 5<br>{{ tutor.reviews_count }} review{{ tutor.reviews_count|pluralize }}</div>
+                    </div>
+                {% else %}
+                    <p class="small text-muted-ts mb-0">No reviews yet. Reviews appear after accepted enquiries.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Parent Dashboard | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h1 class="h4 fw-bold mb-1">Welcome back, {{ user.full_name|truncatewords:1 }} 👋</h1>
+    <p class="text-muted-ts small mb-4">Manage your children's tutoring from one place.</p>
+
+    {% if not user.email_verified %}
+        <div class="alert alert-warning small d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-envelope-exclamation"></i> Verify your email to secure your account.</span>
+            <form method="post" action="{% url 'accounts:resend_verification' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-dark" type="submit">Resend link</button></form>
+        </div>
+    {% endif %}
+
+    <div class="row g-2 mb-4">
+        <div class="col-6 col-md-3"><a class="quick-action" href="{% url 'parents:child_create' %}"><i class="bi bi-person-plus"></i>Add Child</a></div>
+        <div class="col-6 col-md-3"><a class="quick-action" href="{% url 'tutors:list' %}"><i class="bi bi-search"></i>Find Tutor</a></div>
+        <div class="col-6 col-md-3"><a class="quick-action" href="{% url 'marketplace:parent_request_create' %}"><i class="bi bi-megaphone"></i>Request Tutor</a></div>
+        <div class="col-6 col-md-3"><a class="quick-action" href="{% url 'messaging:list' %}"><i class="bi bi-chat-dots"></i>Messages</a></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="h6 fw-bold mb-0">My Children</h2>
+                <a href="{% url 'parents:children' %}" class="btn btn-link btn-sm">Manage</a>
+            </div>
+            <div class="row g-3">
+                {% for child in children %}
+                    <div class="col-md-6">
+                        <div class="ts-card p-3 h-100">
+                            <strong>{{ child.name }}</strong>
+                            <div class="small text-muted-ts">
+                                {{ child.class_level.name|default:"Class not set" }}{% if child.board %} · {{ child.board.name }}{% endif %}
+                                {% if child.school %}<br>{{ child.school }}{% endif %}
+                            </div>
+                            <div class="mt-1">{% for s in child.subjects.all|slice:":4" %}<span class="subject-chip">{{ s.name }}</span>{% endfor %}</div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12"><div class="empty-state ts-card py-4"><i class="bi bi-person-plus"></i><p class="small mt-2 mb-0">Add your first child to personalise tutor matching.</p></div></div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <h2 class="h6 fw-bold">Active Enquiries</h2>
+            <div class="ts-card p-3 mb-4">
+                {% for enquiry in active_enquiries %}
+                    <div class="d-flex justify-content-between border-bottom py-2">
+                        <span class="small"><strong>{{ enquiry.tutor.user.full_name }}</strong>{% if enquiry.child %} · for {{ enquiry.child.name }}{% endif %}</span>
+                        <span class="badge bg-secondary-subtle text-secondary">{{ enquiry.get_status_display }}</span>
+                    </div>
+                {% empty %}<p class="small text-muted-ts mb-0 py-2">No active enquiries.</p>{% endfor %}
+            </div>
+            <h2 class="h6 fw-bold">My Tutor Requests</h2>
+            <div class="ts-card p-3">
+                {% for req in requests %}
+                    <div class="d-flex justify-content-between border-bottom py-2">
+                        <span class="small">{{ req.title|truncatechars:40 }}</span>
+                        <a class="btn btn-link btn-sm" href="{% url 'marketplace:request_detail' request_id=req.pk %}">Open</a>
+                    </div>
+                {% empty %}<p class="small text-muted-ts mb-0 py-2">No tutor requests yet.</p>{% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

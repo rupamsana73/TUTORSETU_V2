@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}My Profile | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 640px;">
+    <h1 class="h4 fw-bold mb-3">My Profile</h1>
+    <div class="ts-card p-4">
+        <p class="small mb-1"><strong>Name:</strong> {{ user.full_name }}</p>
+        <p class="small mb-1"><strong>Email:</strong> {{ user.email }}</p>
+        <p class="small mb-1"><strong>Class:</strong> {{ profile.class_level.name|default:"Not set" }}</p>
+        <p class="small mb-1"><strong>Board:</strong> {{ profile.board.name|default:"Not set" }}</p>
+        <p class="small mb-0"><strong>Preferred location:</strong> {{ profile.preferred_location|default:"Not set" }}</p>
+    </div>
+    <a class="btn btn-ts-outline btn-sm mt-3" href="{% url 'accounts:settings' %}">Account settings</a>
+</div>
+{% endblock %}

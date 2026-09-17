@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Login | TutorSetu{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 460px;">
+    <div class="ts-card p-4">
+        <h1 class="h4 fw-bold text-center mb-3">Welcome back</h1>
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger small">{% for error in form.non_field_errors %}{{ error }}{% endfor %}</div>
+        {% endif %}
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.username.id_for_label }}">Email</label>
+                {{ form.username }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+            </div>
+            <button class="btn btn-ts-primary w-100" type="submit">Log In</button>
+        </form>
+        <div class="text-center mt-3 small">
+            <a href="{% url 'accounts:password_reset' %}">Forgot your password?</a>
+        </div>
+        <hr>
+        <p class="text-center small text-muted-ts mb-0">New to TutorSetu? <a href="{% url 'accounts:register' %}">Create an account</a></p>
+    </div>
+</div>
+{% endblock %}

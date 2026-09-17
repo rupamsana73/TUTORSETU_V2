@@ -1,0 +1,11 @@
+Hi {{ user.full_name }},
+
+Welcome to TutorSetu! Please verify your email address by opening this link:
+
+{{ verification_url }}
+
+This verification link expires in 3 days.
+
+If you didn't create a TutorSetu account, you can ignore this email.
+
+— The TutorSetu Team

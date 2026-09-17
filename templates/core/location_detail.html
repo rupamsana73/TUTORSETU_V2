@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb small"><li class="breadcrumb-item"><a href="{% url 'core:locations' %}">Locations</a></li><li class="breadcrumb-item active">{{ location.area }}, {{ location.city }}</li></ol></nav>
+    <h1 class="fw-bold">Tutors in {{ location.area }}, {{ location.city }}</h1>
+    <div class="row g-3 mt-2">
+        {% for tutor in tutors %}
+            <div class="col-md-6 col-lg-4">{% include "partials/tutor_card.html" with tutor=tutor %}</div>
+        {% empty %}
+            <div class="col-12"><div class="empty-state ts-card"><i class="bi bi-geo-alt"></i><p class="mt-2 mb-0">No tutors published in {{ location.area }} yet. <a href="{% url 'tutors:list' %}">Search all tutors</a>.</p></div></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
